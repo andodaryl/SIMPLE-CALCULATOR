@@ -76,9 +76,14 @@ const meta = {
   },
   data: {
     firstNumber: 0,
-    secondNumber: 0,
+    secondNumber: null,
     operator: null,
-    placeholder: { displayContent: "0", memoryContent: "" },
+    placeholder: {
+      displayContent: "0",
+      memoryContent: "",
+      firstNumber: 0,
+      secondNumber: null,
+    },
     config: {
       toggleShift: false,
       toggleDecimal: false,
@@ -89,10 +94,8 @@ const meta = {
 const methods = {
   resetDisplay() {
     const displayContent = meta.elems.displayContent;
-    const memoryContent = meta.elems.memoryContent;
     const placeholder = meta.data.placeholder;
     displayContent.innerText = placeholder.displayContent;
-    memoryContent.innerText = placeholder.memoryContent;
   },
   updateDisplay(str) {
     const displayContent = meta.elems.displayContent;
@@ -109,6 +112,32 @@ const methods = {
       displayContent.innerText += str;
     }
   },
+  resetMemory() {
+    const memoryContent = meta.elems.memoryContent;
+    const placeholder = meta.data.placeholder;
+    memoryContent.innerText = placeholder.memoryContent;
+  },
+  updateMemory() {
+    const memoryContent = meta.elems.memoryContent;
+    const firstNumber = meta.data.firstNumber.toString();
+    const getOperator = () =>
+      meta.data.operator == "=" ? "" : meta.data.operator.toString();
+    const getSecondNumber = () =>
+      meta.data.secondNumber ? meta.data.secondNumber.toString() : "";
+    memoryContent.innerText =
+      firstNumber + " " + getOperator() + " " + getSecondNumber();
+  },
+  updateData() {
+    const displayContent = meta.elems.displayContent;
+    meta.data.firstNumber
+      ? (meta.data.secondNumber = displayContent.innerText)
+      : (meta.data.firstNumber = displayContent.innerText);
+  },
+  resetData() {
+    meta.data.firstNumber = meta.data.placeholder.firstNumber;
+    meta.data.secondNumber = meta.data.placeholder.secondNumber;
+    meta.data.operator = meta.data.placeholder.operator;
+  },
   disableElement(element) {
     element.classList.add(meta.class.disable);
   },
@@ -117,27 +146,24 @@ const methods = {
   },
   storeNumbers(num) {},
   operate(operator, numA, numB) {
+    numA = parseFloat(numA);
+    numB = parseFloat(numB);
     switch (operator) {
-      case "add":
+      case "+":
         return numA + numB;
         break;
-      case "subtract":
+      case "-":
         return numA - numB;
         break;
-      case "multiply":
+      case "x":
         return numA * numB;
         break;
-      case "divide":
+      case "/":
         return numA / numB;
         break;
       default:
         console.error("Operate(operator, numA, numB) invalid operator");
     }
-  },
-  evaluate(str) {
-    const numbers = str.match(/[-+]?([0-9]*[.])?[0-9]+[e]?/gi);
-    const operator = str.match(/[-+x/]/gi);
-    return { operator: operator[0], numA: numbers[0], numB: numbers[1] };
   },
 };
 methods.deleteLastChar = () => {
@@ -146,6 +172,14 @@ methods.deleteLastChar = () => {
   textLength > 1
     ? (displayContent.innerText = displayContent.innerText.slice(0, -1))
     : methods.resetDisplay();
+};
+methods.resetAll = () => {
+  methods.resetDisplay();
+  methods.resetMemory();
+  methods.resetData();
+};
+methods.enterNumber = (num) => {
+  methods.updateDisplay(num.toString());
 };
 
 methods.toggleShift = () => {
@@ -164,35 +198,73 @@ methods.toggleShift = () => {
   }
 };
 
-const enterNumber = (num) => {
-  methods.updateDisplay(num.toString());
-};
-
-for (let i = 0; i < meta.elems.numbers.length; i++) {
-  const numberButton = meta.elems.numbers[i];
-  numberButton.addEventListener("click", (detected) => {
-    if (detected) {
-      const numberValue = numberButton.getAttribute("id");
-      enterNumber(numberValue);
-    }
-  });
-}
-
 const enterOperator = (operator) => {
+  const displayContent = meta.elems.displayContent;
   const opList = meta.elems.operators;
-  switch (operator) {
-    case opList.add:
-      break;
-    case opList.subtract:
-      break;
-    case opList.divide:
-      break;
-    case opList.multiply:
-      break;
-    case opList.equals:
-      break;
-    default:
-      console.error("operator not found");
+  const updateOperator = () => {
+    switch (operator) {
+      case opList.add:
+        meta.data.operator = "+";
+        break;
+      case opList.subtract:
+        meta.data.operator = "-";
+        break;
+      case opList.divide:
+        meta.data.operator = "/";
+        break;
+      case opList.multiply:
+        meta.data.operator = "x";
+        break;
+      case opList.equals:
+        meta.data.operator = "=";
+        break;
+      default:
+        console.error("operator not found");
+    }
+  };
+  if (operator != opList.equals) {
+    if (meta.data.firstNumber) {
+      console.log("firstNumber exists!");
+      console.log("operator: " + meta.data.operator);
+      console.log("firstNumber: " + meta.data.firstNumber);
+      if (displayContent.innerText == meta.data.placeholder.displayContent) {
+        updateOperator();
+        methods.updateMemory();
+      } else {
+        methods.updateData();
+        const answer = methods.operate(
+          meta.data.operator,
+          meta.data.firstNumber,
+          meta.data.secondNumber
+        );
+        // console.log("result: " + result.toString());
+        methods.resetAll();
+        methods.updateDisplay(answer.toString());
+        methods.updateData();
+        updateOperator();
+        methods.updateMemory();
+        methods.resetDisplay();
+      }
+    } else {
+      updateOperator();
+      methods.updateData();
+      methods.updateMemory();
+      methods.resetDisplay();
+    }
+  }
+  if (operator == opList.equals && meta.data.firstNumber) {
+    if (displayContent.innerText != meta.data.placeholder.displayContent) {
+      methods.updateData();
+      const answer = methods.operate(
+        meta.data.operator,
+        meta.data.firstNumber,
+        meta.data.secondNumber
+      );
+      // console.log("result: " + result.toString());
+      methods.resetAll();
+      updateOperator();
+      methods.updateDisplay(answer.toString());
+    }
   }
 };
 
@@ -206,7 +278,7 @@ const enterMechanic = (mechanic) => {
       // console.log(config.toggleDecimal);
       config.toggleDecimal = /[.]/g.test(displayContent.innerText);
       if (config.toggleDecimal == false) {
-        console.log("mechanic decimal activated!");
+        // console.log("mechanic decimal activated!");
         config.toggleDecimal = true;
         methods.disableElement(mechList.decimal);
         methods.updateDisplay(".");
@@ -216,9 +288,9 @@ const enterMechanic = (mechanic) => {
       methods.toggleShift();
       break;
     case mechList.remove:
-      console.log("mechanic remove activated!");
+      // console.log("mechanic remove activated!");
       if (config.toggleShift) {
-        methods.resetDisplay();
+        methods.resetAll();
         methods.toggleShift();
       } else {
         methods.deleteLastChar();
@@ -229,11 +301,28 @@ const enterMechanic = (mechanic) => {
   }
 };
 
+for (let i = 0; i < meta.elems.numbers.length; i++) {
+  const numberButton = meta.elems.numbers[i];
+  numberButton.addEventListener("click", (detected) => {
+    if (detected) {
+      const numberValue = numberButton.getAttribute("id");
+      methods.enterNumber(numberValue);
+    }
+  });
+}
 for (mechanicKey in meta.elems.mechanics) {
   const mechanic = meta.elems.mechanics[mechanicKey];
   mechanic.addEventListener("click", (detected) => {
     if (detected) {
       enterMechanic(mechanic);
+    }
+  });
+}
+for (opKey in meta.elems.operators) {
+  const operator = meta.elems.operators[opKey];
+  operator.addEventListener("click", (detected) => {
+    if (detected) {
+      enterOperator(operator);
     }
   });
 }
