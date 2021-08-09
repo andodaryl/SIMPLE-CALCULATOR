@@ -102,14 +102,14 @@ body {
 .button:active:not(.disabled) {
   outline: 0.1rem solid white;
 }
-#delete.delete::after {
+#remove.delete::after {
   content: "Delete";
 }
-#delete.clear {
+#remove.clear {
   background-color: var(--main-color);
   font-weight: bold;
   outline: 0.1rem solid white;
 }
-#delete.clear::after {
+#remove.clear::after {
   content: "Clear";
 }
