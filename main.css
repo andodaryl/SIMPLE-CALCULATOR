@@ -7,8 +7,8 @@
   --example: 0;
   /* Colors */
   --main-color: #f2bc94;
-  --secondary-color: #30110d;
-  --tertiary-color: #722620;
+  --secondary-color: #6f86a0;
+  --tertiary-color: #59597c;
   /* Fonts */
   /* Properties */
 }
@@ -36,8 +36,8 @@ body {
   width: 20rem;
   height: auto;
   background-color: var(--secondary-color);
-  border: 0.5rem solid black;
-  border-radius: 2rem;
+  border: 0.2rem solid black;
+  border-radius: 0.5rem;
 }
 #display-container {
   display: flex;
@@ -47,13 +47,12 @@ body {
   margin: 10% auto;
   width: 80%;
   height: auto;
-  border: 0.2rem solid whitesmoke;
-  border-radius: 1rem;
+  /* border: 0.2rem solid rgb(0, 0, 0); */
+  border-radius: 0.5rem;
   background-color: black;
   overflow-wrap: break-word;
 }
 #display-content {
-  color: whitesmoke;
   display: inline-block;
   position: relative;
   background-color: transparent;
@@ -65,9 +64,21 @@ body {
   font-size: 4.5rem;
   pointer-events: none;
   caret-color: transparent;
+  color: whitesmoke;
 }
-#display-content:focus {
-  outline: none;
+#memory-content {
+  display: inline-block;
+  position: absolute;
+  width: 90%;
+  margin: 0 auto;
+  padding: 0 0 0 5%;
+  background-color: transparent;
+  color: whitesmoke;
+  font-size: 0.6rem;
+  text-align: left;
+  pointer-events: none;
+  border: none;
+  caret-color: transparent;
 }
 #controls {
   display: grid;
