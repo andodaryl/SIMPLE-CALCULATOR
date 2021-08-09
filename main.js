@@ -46,9 +46,9 @@ shift: toggles remove button -- delete / clear
 remove: delete: delete last char / clear: reset display
 
 -- idea 2 --
-numbersMode: enter firstNumbers, update display-content
+numbersMode: enter numbers, update display-content
 operatorsMode: store firstNumbers, display-memory firstNumbers + operator
-numbersMode: enter secondNumbers, update display
+numbersMode: enter numbers, update display-content
 operatorsMode: if (firstNumbers stored ) store secondNumbers, always activate = operator, display-content results, append non = operator
 // */ //
 
@@ -69,22 +69,34 @@ const meta = {
       shift: document.getElementById("shift"),
       remove: document.getElementById("remove"),
     },
-    config: {
-      shiftToggle: false,
-      removeMode: { clear: "clear", delete: "delete" },
-    },
+    numbers: document.getElementsByClassName("number"),
+  },
+  config: {
+    shiftToggle: false,
+    removeMode: { clear: "clear", delete: "delete" },
+  },
+  data: {
+    firstNumber: 0,
+    secondNumber: 0,
+    operator: null,
+    placeholder: 0,
   },
 };
 const methods = {
   resetDisplay() {
-    elems.displayContent.innerText = meta.origin.displayValue;
+    meta.elems.displayContent.innerText = meta.data.placeholder;
   },
   updateDisplay(str) {
-    elems.displayContent.innerText += str;
+    const displayContent = meta.elems.displayContent;
+    const placeholder = meta.data.placeholder;
+    displayContent.innerText == placeholder
+      ? (displayContent.innerText = str)
+      : (displayContent.innerText += str);
   },
   deleteLastChar(str) {
     return str.slice(0, -1);
   },
+  storeNumbers(num) {},
   operate(operator, numA, numB) {
     switch (operator) {
       case "add":
@@ -110,9 +122,19 @@ const methods = {
   },
 };
 
-const enterNumbers = (num) => {
-  updateDisplay(num.toString());
+const enterNumber = (num) => {
+  methods.updateDisplay(num.toString());
 };
+
+for (let i = 0; i < meta.elems.numbers.length; i++) {
+  const numberButton = meta.elems.numbers[i];
+  numberButton.addEventListener("click", (detected) => {
+    if (detected) {
+      const numberValue = numberButton.getAttribute("id");
+      enterNumber(numberValue);
+    }
+  });
+}
 
 const enterOperator = (operator) => {
   const opList = meta.elems.operators;
@@ -132,7 +154,7 @@ const enterOperator = (operator) => {
   }
 };
 
-const enterMechanics = (mechanic) => {
+const enterMechanic = (mechanic) => {
   const mechList = meta.elems.mechanics;
   switch (mechanic) {
     case mechList.decimal:
