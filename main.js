@@ -4,11 +4,59 @@
 // /* // operational
 // */ //
 
+/* // approach
+operate(operator, numA, numB)
+switch(operator)
+add
+subtract
+multiply
+divide
+update display
+buttons
+operators
+add
+subtract
+multiply
+divide
+equals
+other
+numbers
+decimal point
+backspace
+clear: wipe all data
+note
+current answer = numA
+pressing numbers = numberString
+calculating = parseFloat(numberString)
+divide by zero = funny message
+decimal point disabled after use
+
+display: original is "0"
+numbers
+update display.innerText with numbers
+operators
+first press: update display.innerText
+second press: 
+if no operator, change to recently pressed operator
+activates equal sign and update display.innerText
+equal sign: takes display.innerText and evaluates numA..operator..numB
+mechanics
+decimal: update display.innerText and disable button
+shift: toggles remove button -- delete / clear
+remove: delete: delete last char / clear: reset display
+
+-- idea 2 --
+numbersMode: enter firstNumbers
+operatorsMode: store firstNumbers, display firstNumbers + operator
+numbersMode: enter secondNumbers
+operatorsMode: if (firstNumbers stored ) store secondNumbers, always activate = operator, display results, append non = operator
+// */ //
+
 // /* // diagnostic
 const meta = {
-  origin: { displayValue: 0 },
   elems: {
     displayContent: document.getElementById("display-content"),
+    memoryContent: document.getElementById("memory-content"),
   },
 };
 const methods = {
@@ -17,6 +65,9 @@ const methods = {
   },
   updateDisplay(str) {
     elems.displayContent.innerText += str;
+  },
+  deleteLastChar(str) {
+    return str.slice(0, -1);
   },
   operate(operator, numA, numB) {
     switch (operator) {
@@ -42,47 +93,4 @@ const methods = {
     return { operator: operator[0], numA: numbers[0], numB: numbers[1] };
   },
 };
-
-// */ //
-
-/* // approach
-operate(operator, numA, numB)
-  switch(operator)
-    add
-    subtract
-    multiply
-    divide
-  update display
-buttons
-  operators
-    add
-    subtract
-    multiply
-    divide
-    equals
-  other
-    numbers
-    decimal point
-    backspace
-    clear: wipe all data
-note
-  current answer = numA
-  pressing numbers = numberString
-  calculating = parseFloat(numberString)
-  divide by zero = funny message
-  decimal point disabled after use
-
-display: original is "0"
-numbers
-  update display.innerText with numbers
-operators
-  first press: update display.innerText
-  second press: 
-    if no operator, change to recently pressed operator
-    activates equal sign and update display.innerText
-  equal sign: takes display.innerText and evaluates numA..operator..numB
-mechanics
-  decimal: update display.innerText and disable button
-  shift: toggles remove button -- delete / clear
-  remove: delete: delete last char / clear: reset display
 // */ //
