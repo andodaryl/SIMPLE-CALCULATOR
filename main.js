@@ -49,7 +49,7 @@ remove: delete: delete last char / clear: reset display
 numbersMode: enter numbers, update display-content
 operatorsMode: store firstNumbers, display-memory firstNumbers + operator
 numbersMode: enter numbers, update display-content
-operatorsMode: if (firstNumbers stored ) store secondNumbers, always activate = operator, display-content results, append non = operator
+operatorsMode: if (firstNumbers stored) store secondNumbers, always activate = operator, display-content results, append non = operator
 // */ //
 
 // /* // diagnostic 1
@@ -71,30 +71,49 @@ const meta = {
     },
     numbers: document.getElementsByClassName("number"),
   },
-  config: {
-    shiftToggle: false,
-    removeMode: { clear: "clear", delete: "delete" },
+  class: {
+    disable: "disable",
   },
   data: {
     firstNumber: 0,
     secondNumber: 0,
     operator: null,
-    placeholder: 0,
+    placeholder: { displayContent: "0", memoryContent: "" },
+    config: {
+      toggleShift: false,
+      toggleDecimal: false,
+      removeMode: { clear: "clear", delete: "delete" },
+    },
   },
 };
 const methods = {
   resetDisplay() {
-    meta.elems.displayContent.innerText = meta.data.placeholder;
+    const displayContent = meta.elems.displayContent;
+    const memoryContent = meta.elems.memoryContent;
+    const placeholder = meta.data.placeholder;
+    displayContent.innerText = placeholder.displayContent;
+    memoryContent.innerText = placeholder.memoryContent;
   },
   updateDisplay(str) {
     const displayContent = meta.elems.displayContent;
-    const placeholder = meta.data.placeholder;
-    displayContent.innerText == placeholder
-      ? (displayContent.innerText = str)
-      : (displayContent.innerText += str);
+    const placeholder = meta.data.placeholder.displayContent;
+    if (displayContent.innerText == placeholder) {
+      // console.log("reseting display if display is placeholder");
+      // console.log("placeholder: " + placeholder);
+      // console.log("innerText: " + displayContent.innerText);
+      str == "."
+        ? (displayContent.innerText += str)
+        : (displayContent.innerText = str);
+    } else {
+      // console.log("adding to display");
+      displayContent.innerText += str;
+    }
   },
-  deleteLastChar(str) {
-    return str.slice(0, -1);
+  disableElement(element) {
+    element.classList.add(meta.class.disable);
+  },
+  enableElement(element) {
+    element.classList.remove(meta.class.disable);
   },
   storeNumbers(num) {},
   operate(operator, numA, numB) {
@@ -120,6 +139,29 @@ const methods = {
     const operator = str.match(/[-+x/]/gi);
     return { operator: operator[0], numA: numbers[0], numB: numbers[1] };
   },
+};
+methods.deleteLastChar = () => {
+  const displayContent = meta.elems.displayContent;
+  const textLength = displayContent.innerText.length;
+  textLength > 1
+    ? (displayContent.innerText = displayContent.innerText.slice(0, -1))
+    : methods.resetDisplay();
+};
+
+methods.toggleShift = () => {
+  const mechList = meta.elems.mechanics;
+  const config = meta.data.config;
+  // console.log("mechanic shift activated!");
+  // console.log(config.toggleShift);
+  if (config.toggleShift == true) {
+    mechList.remove.classList.remove(config.removeMode.clear);
+    mechList.remove.classList.add(config.removeMode.delete);
+    config.toggleShift = false;
+  } else {
+    mechList.remove.classList.remove(config.removeMode.delete);
+    mechList.remove.classList.add(config.removeMode.clear);
+    config.toggleShift = true;
+  }
 };
 
 const enterNumber = (num) => {
@@ -155,17 +197,45 @@ const enterOperator = (operator) => {
 };
 
 const enterMechanic = (mechanic) => {
+  const displayContent = meta.elems.displayContent;
   const mechList = meta.elems.mechanics;
+  const config = meta.data.config;
   switch (mechanic) {
     case mechList.decimal:
+      // console.log("mechanic decimal detected!");
+      // console.log(config.toggleDecimal);
+      config.toggleDecimal = /[.]/g.test(displayContent.innerText);
+      if (config.toggleDecimal == false) {
+        console.log("mechanic decimal activated!");
+        config.toggleDecimal = true;
+        methods.disableElement(mechList.decimal);
+        methods.updateDisplay(".");
+      }
       break;
     case mechList.shift:
+      methods.toggleShift();
       break;
     case mechList.remove:
+      console.log("mechanic remove activated!");
+      if (config.toggleShift) {
+        methods.resetDisplay();
+        methods.toggleShift();
+      } else {
+        methods.deleteLastChar();
+      }
       break;
     default:
       console.error("mechanic not found");
   }
 };
+
+for (mechanicKey in meta.elems.mechanics) {
+  const mechanic = meta.elems.mechanics[mechanicKey];
+  mechanic.addEventListener("click", (detected) => {
+    if (detected) {
+      enterMechanic(mechanic);
+    }
+  });
+}
 
 // */ //
