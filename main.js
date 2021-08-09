@@ -52,7 +52,7 @@ numbersMode: enter secondNumbers, update display
 operatorsMode: if (firstNumbers stored ) store secondNumbers, always activate = operator, display-content results, append non = operator
 // */ //
 
-// /* // diagnostic
+// /* // diagnostic 1
 const meta = {
   elems: {
     displayContent: document.getElementById("display-content"),
